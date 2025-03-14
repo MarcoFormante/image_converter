@@ -1,3 +1,7 @@
+
+$primary-color:#BDEE63;
+$black:#111111;
+
 *,
 ::before,
 ::after {
@@ -708,7 +712,7 @@ video {
 }
 
 .max-w-7xl {
-  max-width: 80rem;
+  max-width: 90rem;
 }
 
 .flex-1 {
@@ -1159,34 +1163,33 @@ video {
 body {
   min-height: 100vh;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
-  background: rgb(49, 110, 153);
-  background: -moz-linear-gradient(
-    209deg,
-    rgb(49, 110, 153) 0%,
-    rgba(233, 240, 245, 1) 100%
-  );
-  background: -webkit-linear-gradient(
-    209deg,
-    rgb(49, 110, 153) 0%,
-    rgba(233, 240, 245, 1) 100%
-  );
-  background: linear-gradient(
-    209deg,
-    rgb(49, 110, 153) 0%,
-    rgba(233, 240, 245, 1) 100%
-  );
+  background: #111111;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#3a82b4", endColorstr="#e9f0f5", GradientType=1);
 }
 
 h1 {
-  font-size: clamp(20px, 5vw, 5rem);
-  text-align: center;
-  -webkit-text-stroke: 1px rgb(255, 255, 255);
-  color: rgb(249, 250, 250);
+  font-size: clamp(24px, 5vw, 5rem);
+  text-align: left;
+  color: #dfdfdf;
   text-transform: uppercase;
   font-weight: bold;
   letter-spacing: 5px;
   margin-top: 10px;
+  line-height: normal;
+}
+
+#main-container{
+    display: flex;
+    justify-content:space-evenly;
+    align-items: center;
+    margin-top: 50px;
+ 
+  @media screen and (max-width:768px) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
 }
 
 h2 {
@@ -1195,7 +1198,8 @@ h2 {
 }
 
 p {
-  opacity: 0.9;
+  opacity: 1;
+  color: #dfdfdf;
 }
 
 .gap-2 {
@@ -1213,39 +1217,43 @@ input::placeholder {
   margin-top: 10px;
 }
 
-.dropzone {
-  border: 2px dashed rgb(77, 79, 182);
-  border-radius: 5px;
-  padding: 50px;
-  text-align: center;
-  color: rgb(26, 26, 26);
-  cursor: pointer;
-  margin-top: 4vh;
-  transition: padding 0.3s, font-size 0.3s;
-  font-size: 20px;
-}
 
 
-
-.dropzone.dragover {
-  padding: 120px;
-  font-size: 25px;
-}
 
 .fileInput {
-  border: 2px solid #235cac;
+  border: 2px solid $primary-color;
   padding: 10px 20px;
   color: white;
-  background-color: #5f92da;
+  background-color: $black;
   border-radius: 4px;
+  animation: btn-appear 1s forwards;
+  opacity: 0;
+  transition: box-shadow 0.3s ease-in-out;
+  animation-delay: 1s;
+  appearance: none;
+  position: relative;
+  z-index: -1;
+
+
+  &:hover{
+      box-shadow: 0 0 10px $primary-color;
+  }
+}
+
+@keyframes  btn-appear {
+  to{
+    opacity: 1;
+  }
 }
 
 .defaultValues-container {
-  background-color: rgb(49, 110, 153);
+  background-color: rgb(196, 196, 196);
   padding: 20px;
   margin-bottom: 20px;
   margin-top: 20px;
-  color: white;
+  color: $black;
+  border: 2px solid white;
+  border-radius: 8px;
 
   div {
     justify-content: space-between;
@@ -1254,15 +1262,39 @@ input::placeholder {
 
 .file {
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  border: 1px solid black;
+  border: 1px solid white;
   border-top: none;
   border-bottom-width: 1px;
-  padding: 20px 5px;
   text-align: center;
   padding: 10px 20px;
-  background-color: lightgray;
+  background-color: $black;
+  border-radius: 8px;
+  min-height: 396px;
+  margin-bottom: 20px;
+
+  @media screen and (max-width:424px) {
+    padding: 5px;
+    margin: auto;
+    display: grid;
+  }
+}
+
+.file-values{
+  gap: 20px;
+  margin-bottom: 10px;
+  @media screen and (max-width:424px) {
+    gap: 5px;
+  }
+}
+
+.file-btns-dr{
+  margin-bottom: 10px;
+  @media screen and (max-width:424px) {
+    margin-top: 0;
+  }
 }
 
 .file-img-container {
@@ -1270,25 +1302,32 @@ input::placeholder {
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  text-align: start;
-  gap: 10px;
+  text-align: center;
+  gap: 20px;
+  margin: auto;
+  align-items: center;
+  position: relative;
+
+  img{
+    position: relative;
+    width: 100px;
+    z-index: 5;
+  }
 }
 
 .size {
-  color: #494c52;
+  color: #a4a4a5;
+  text-align: center;
+  margin-bottom: 15px;
 }
 
-.file-container:first-child {
-  border-top: 1px solid black;
+.file:first-child {
+  border-top: 1px solid white;
 }
 
-.btn {
-  border: 1px solid black;
-}
 
 select,
 input {
-  border: 2px solid black;
   border-radius: 5px;
   appearance: none;
   color: black;
@@ -1308,16 +1347,17 @@ input {
 }
 
 .btn-donwload {
-  background-color: #235cac;
-  color: white;
   padding: 0.5rem 0.5rem;
   border-radius: 5px;
   cursor: pointer;
   align-self: end;
+  background-color: $primary-color;
+  color: $black;
 }
 
 .btn-donwload:hover:not(.download-off) {
-  background-color: #5f92da;
+  background-color: $black;
+  color: $primary-color;
 }
 
 .align-middle {
@@ -1364,10 +1404,267 @@ img {
   object-fit: cover;
 }
 
-@media screen and (min-width: 794px) {
-  .dropzone:hover {
-      padding: 120px;
-      font-size: 25px;
-    }
+
+
+.file-name{
+  color: white;
+  opacity: 1;
 }
 
+
+#dropzone-container{
+  width: clamp(250px,30vw,500px);
+  height: clamp(200px,30vw,300px);
+
+  @media screen and (max-width:768px) {
+   width: fit-content;
+   height: fit-content;
+  }
+
+  @media screen and (max-width:768px) {
+    border: none;
+  }
+
+  &:hover{
+    button{
+      box-shadow: 0 0 10px $primary-color;
+    }
+  }
+}
+
+#total-files{
+ margin: 50px 0;
+ text-align: center;
+  @media screen and (max-width:768px) {
+   text-align: center;
+}
+}
+
+
+#title{
+  width: 40dvw;
+
+  @media screen and (max-width:768px) {
+      width: 100%;
+      text-align: center;
+  }
+}
+
+#text-converter{
+  width: 0;
+  display: inline-block;
+  animation: appear forwards 1s cubic-bezier(.73,.26,.22,.46);
+  overflow: hidden;
+  animation-delay: 0.3s;
+}
+
+#text-image{
+  width: 0;
+  display: inline-block;
+  overflow: hidden;
+  animation: appear-text-image forwards 1.5s cubic-bezier(.64,.3,.22,.46) ;
+}
+
+@keyframes appear {
+  to{
+    overflow:hidden;
+    width: 100%;
+  }
+}
+
+
+@keyframes appear-text-image {
+  to{
+    overflow:hidden;
+    width: 100%;
+  }
+}
+
+
+.dropzone {
+  border-radius: 5px;
+  text-align: center;
+  color: rgb(26, 26, 26);
+  cursor: pointer;
+  margin-top: 4vh;
+  transition: padding 0.3s, font-size 0.3s;
+  font-size: 20px;
+  width: 100%;
+  height: 100%;
+  border: 1px dashed transparent;
+  animation: border-appear 0.5s forwards ease-out ;
+  animation-delay: 0.5s;
+  width: 100%;
+  opacity: 0;
+  position: relative;
+  
+  @media screen and (max-width:768px) {
+    width: 100%;
+    border: none;
+    animation: none;
+    opacity: 1;
+    animation-delay: 0.2s;
+  }
+}
+
+
+@keyframes border-appear {
+
+  0%{
+    border-top: 1px dashed $primary-color;
+    opacity: 0.2;
+  }
+
+  40%{
+    border-right: 1px dashed $primary-color;
+    opacity: 0.4;
+  }
+
+  70%{
+    border-bottom: 1px dashed $primary-color;
+    opacity: 0.8
+  }
+
+  90%{
+    border-left: 1px dashed $primary-color;
+    opacity: 1;
+  }
+
+  100%{
+    border: 1px dashed $primary-color;
+    opacity: 1;
+  }
+  
+}
+
+label:not(.defaultValues-container label){
+  color: white;
+}
+
+.defaultValues-container{
+  color: $black;
+
+  select{
+    border: 2px solid #111111;
+    cursor: pointer;
+  }
+}
+
+.files{
+  gap: 10px;
+}
+
+.gap-30{
+  gap: 30px;
+}
+
+.remove-btn{
+  background-color:brown;
+}
+
+.remove-btn:hover{
+  background-color: $black;
+  color: brown;
+}
+
+#remove-all{
+  border: 2px solid $black;
+}
+
+#remove-all:hover{
+  color: brown;
+  background-color: $black;
+  border: 2px solid $black;
+}
+
+
+#droppedFiles-container{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+ justify-content: center;
+  margin: auto;
+
+  @media screen and (max-width:768px) {
+      width: 100%;
+      display: grid;
+      place-items: center;
+  }
+}
+
+#loading-container{
+  width: 100dvw;
+  height: 100dvh;
+  background-color: transparent;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  cursor: auto;
+
+  div{
+    position: absolute;
+    bottom: 0%;
+    left: 50%;
+    transform: translate(-50%,0%);
+    color: white;
+    font-size: 70px;
+    letter-spacing: 10px;
+    background-color: $black;
+    width: 100%;
+  }
+
+  #loading-circle{
+    width: 70px;
+    height: 70px;
+    display: inline-block;
+    margin-right: 10px;
+    border-radius: 100%;
+    border: none;
+    border-top:4px solid $primary-color;
+    border-left:4px solid $primary-color;
+    animation: rotate 2s infinite linear;
+  }
+}
+
+@keyframes rotate {
+  to{
+    transform: rotate(360deg);
+  }
+}
+
+
+#text-drop{
+  position: absolute;
+  left: 50%;
+  top: 20%;
+  transform: translateX(-50%);
+  font-size: 18px;
+  z-index: -1;
+
+  @media screen and (max-width:768px) {
+    width: 100%;
+    display: grid;
+    place-items: center;
+    opacity: 0;
+}
+}
+
+.img-loading-state{
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border: 2px solid $primary-color;
+  top: 20px;
+  border-radius: 100%;
+  border-top:none;
+  border-right: none;
+  animation: rotation 0.8s infinite cubic-bezier(0.215, 0.610, 0.855, 1); 
+  z-index: 0;
+}
+
+@keyframes rotation {
+    to{
+      transform: rotate(360deg);
+    }
+}

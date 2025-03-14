@@ -1,40 +1,20 @@
-import { useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import File from './File'
 import { imageQualities, imageTypes } from './utils'
 import Resizer from 'react-image-file-resizer'
-import { DroppedFile } from '../App'
+import { DroppedFile } from '../types'
 import { saveAs } from 'file-saver'
 import JSZip from 'jszip'
+import { Context } from '../context/Context'
 
-interface FilesDroppedProps {
-  droppedFiles: DroppedFile[]
-  setDroppedFiles: React.Dispatch<React.SetStateAction<DroppedFile[]>>
-  typeOfValue: string
-  setTypeOfValue: React.Dispatch<React.SetStateAction<string>>
-}
 
-const FilesDropped: React.FC<FilesDroppedProps> = ({
-  droppedFiles,
-  setDroppedFiles,
-  typeOfValue,
-  setTypeOfValue,
-}) => {
+
+const FilesDropped: React.FC = () => {
   const [defaultQuality, setDefaultQuality] = useState('')
   const [defaultType, setDefaultType] = useState('')
   const [defaultMaxWidth, setDefaultMaxWidth] = useState('')
   const [isDownloadingAll, setIsDownloadingAll] = useState(false)
-
-  const removeFile = (index: number) => {
-    const filteredFiles = droppedFiles.filter((file) => {
-      return index !== file.index
-    })
-
-
-    setDroppedFiles(filteredFiles)
-    if (filteredFiles.length === 0) {
-      resetDefaultValues()
-    }
-  }
+  const {droppedFiles,setDroppedFiles,setTypeOfDefaultValue} = useContext(Context)
 
 
 
@@ -44,13 +24,11 @@ const FilesDropped: React.FC<FilesDroppedProps> = ({
   }
 
 
-
   const resetDefaultValues = () => {
     setDefaultMaxWidth('')
     setDefaultQuality('')
     setDefaultType('')
   }
-
 
 
   const downloadAll = () => {
@@ -86,7 +64,6 @@ const FilesDropped: React.FC<FilesDroppedProps> = ({
   }
 
 
-
   const resizeFile = (
     file: File,
     quality: number | string,
@@ -112,7 +89,15 @@ const FilesDropped: React.FC<FilesDroppedProps> = ({
 
   return (
     <div>
-      <div>
+      { droppedFiles.length > 0 && 
+       <p id='total-files'>
+              Total Files : 
+            <span className="font-bold "> {droppedFiles.length }/10</span>
+        </p>
+      }
+
+      <div id='droppedFiles-container'>
+      
         {droppedFiles.map((file, index) => (
           <div key={index} className="file-container">
             <File
@@ -120,12 +105,9 @@ const FilesDropped: React.FC<FilesDroppedProps> = ({
               defaultType={defaultType}
               file={file}
               index={index}
-              removeFile={removeFile}
-              setDroppedFiles={setDroppedFiles}
               defaultMaxWidth={defaultMaxWidth}
-              typeOfValue={typeOfValue}
-              setTypeOfValue={setTypeOfValue}
               isDownloadingAll={isDownloadingAll}
+              resetDefaultValues={resetDefaultValues}
             />
           </div>
         ))}
@@ -143,7 +125,7 @@ const FilesDropped: React.FC<FilesDroppedProps> = ({
                 className="block  p-1 w-24 text-center"
                 onChange={(e) => {
                   setDefaultQuality(e.target.value)
-                  setTypeOfValue('QUALITY')
+                  setTypeOfDefaultValue('QUALITY')
                 }}
               >
                 <option value="" style={{ color: 'grey' }}>
@@ -163,7 +145,7 @@ const FilesDropped: React.FC<FilesDroppedProps> = ({
                 className="block  p-1 w-24 text-center  "
                 onChange={(e) => {
                   setDefaultType(e.target.value)
-                  setTypeOfValue('TYPE')
+                  setTypeOfDefaultValue('TYPE')
                 }}
               >
                 <option value="">----</option>
@@ -185,8 +167,11 @@ const FilesDropped: React.FC<FilesDroppedProps> = ({
                 value={defaultMaxWidth}
                 placeholder="----"
                 onChange={(e) => {
-                  setDefaultMaxWidth(e.target.value.slice(0, 5))
-                  setTypeOfValue('WIDTH')
+                  setDefaultMaxWidth(e.currentTarget.value.slice(0, 5))
+                  if (defaultMaxWidth !== "WIDTH") {
+                    setTypeOfDefaultValue('WIDTH')
+                  }
+                 
                 }}
               />
             </div>
@@ -200,8 +185,9 @@ const FilesDropped: React.FC<FilesDroppedProps> = ({
                 Download All
               </button>
               <button
+              id='remove-all'
                 onClick={removeAllFiles}
-                className="btn border-2 px-4 py-2 rounded bg-red-500 text-white transition hover:bg-red-200 hover:text-red-500"
+                className="remove-btn border-2 px-4 py-2 rounded text-white transition "
               >
                 Remove All
               </button>

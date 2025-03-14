@@ -1,27 +1,30 @@
-import React, { type SetStateAction } from "react";
-import { DroppedFile } from '../App';
+import React, { useContext, useState} from "react";
+import { Context } from "../context/Context";
 
 
-
-interface DropzoneProps {
-    droppedFiles: DroppedFile[];
-  setDroppedFiles: React.Dispatch<React.SetStateAction<DroppedFile[]>>;
-  setTypeOfValue: React.Dispatch<SetStateAction<string>>
-  }
-
-
-
-const Dropzone:React.FC<DropzoneProps> = ({droppedFiles,setDroppedFiles,setTypeOfValue}) => {
+const Dropzone:React.FC = () => {
+  const [isLoading,setIsLoading] = useState(false)
+  const {droppedFiles,setDroppedFiles,setTypeOfDefaultValue} = useContext(Context)
 
     const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault();
-       setTypeOfValue("")
+      setTypeOfDefaultValue("")
         if (droppedFiles.length + e.dataTransfer.files.length > 10) {
-            return alert('You can only upload 10 files at a time');
+          return alert('You can upload a maximum of 10 files at once. Please reduce the number of files and try again.');
         }
+       
+        const fileTypes = ['jpg', 'jpeg', 'png', 'webp'];
+
+        droppedFiles.forEach(file => {
+          if (!fileTypes.includes(file.type)) {
+            return alert("Unsupported file type. Please upload a JPG, JPEG, PNG, or WEBP file.");
+          }
+        });
+        
         if (e?.dataTransfer?.files) {
+          setIsLoading(true)
             const files = Array.from(e.dataTransfer.files)
-                .filter(file => file !== null && file.type.includes('image'));
+                          .filter(file => file !== null && file.type.includes('image'));
           if (files.length) {
               const startIndex = !droppedFiles.length ? 0 : droppedFiles[droppedFiles.length-1].index + 1;
               Promise.all(files.map(async (file,index) => ({
@@ -40,18 +43,25 @@ const Dropzone:React.FC<DropzoneProps> = ({droppedFiles,setDroppedFiles,setTypeO
                   };
                 })
               }))).then( resolvedFiles => {
+                setIsLoading(false)
                 setDroppedFiles((prev) => [...prev, ...resolvedFiles]);
-              });
-                // window.scroll({top: window.innerHeight , behavior: 'smooth'});
+              }).catch(()=>{
+                  console.error("Error during loading images")
+                  setIsLoading(false)
+              })
             }else{
-                console.log('No images found');
+                console.error('No images found');
+                setIsLoading(false)
             }
+        }else{
+          setIsLoading(false)
         }
     }
 
     const onInputChange = (files:File[]  )=>{
       if (files) {
         if (droppedFiles.length + files.length <= 10) {
+          setIsLoading(true)
             const startIndex = !droppedFiles.length ? 0 : droppedFiles[droppedFiles.length-1].index + 1;
             Promise.all(files.map(async (file,index) => ({
               file,
@@ -69,19 +79,26 @@ const Dropzone:React.FC<DropzoneProps> = ({droppedFiles,setDroppedFiles,setTypeO
                 };
               })
             }))).then( resolvedFiles => {
+              setIsLoading(false)
               setDroppedFiles((prev) => [...prev, ...resolvedFiles]);
-            });
-
+            }).catch(()=>{
+              setIsLoading(false)
+            })
             window.scroll({top: window.innerHeight , behavior: 'smooth'});
-            } else {
+            }else {
+              setIsLoading(false)
               alert('You can only upload 10 files at a time');
         }
+    }else{
+      setIsLoading(false)
+      console.error("Error during loading images")
     }
 }
 
 
   return (
-    <div className='dropzone '
+    <div className='dropzone'
+      
       onDrop={(e) =>
       {
         onDrop(e)
@@ -92,20 +109,28 @@ const Dropzone:React.FC<DropzoneProps> = ({droppedFiles,setDroppedFiles,setTypeO
         e.currentTarget.classList.add('dragover')
       }}
     >
+    <p id="text-drop">Drop here or</p> 
+
       <input
         hidden
         type="file"
         name="inpt-files"
         id="inpt-files"
-         multiple
+        multiple
         accept='.jpg, .jpeg, .png, .webp'
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInputChange(e.target.files ? Array.from(e.target.files) : [])}
         />
-        <label htmlFor='inpt-files' className=' cursor-pointer '>
+        <label htmlFor='inpt-files' className='cursor-pointer '>
             <div className='flex justify-center items-center h-full '>
-                <p className='fileInput'>Choose Files</p>
+                <button className='fileInput'>Choose Files</button>
             </div>
         </label>
+
+        {isLoading && 
+        <div id="loading-container">
+          <div>L<span id="loading-circle"></span>ADING</div>
+        </div>
+      }
   </div>
   )
 }

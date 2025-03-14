@@ -1,67 +1,62 @@
-import React, { SetStateAction, useEffect, useState } from 'react'
+import React, {useContext, useEffect, useState } from 'react'
 import { imageQualities, imageTypes } from './utils'
-import { DroppedFile } from '../App'
 import FileResizer from 'react-image-file-resizer'
-
-interface FileProps {
-  file: DroppedFile
-  index: number
-  removeFile: (index: number) => void
-  defaultType: string
-  defaultQuality: string
-  setDroppedFiles: React.Dispatch<SetStateAction<DroppedFile[]>>
-  defaultMaxWidth: string
-  typeOfValue: string
-
-  setTypeOfValue: React.Dispatch<SetStateAction<string>>
-  isDownloadingAll: boolean
-}
+import { Context } from '../context/Context'
+import { DroppedFile, FileProps } from '../types';
 
 
 
 const File: React.FC<FileProps> = ({
   file,
   index,
-  removeFile,
   defaultType,
   defaultQuality,
   defaultMaxWidth,
-  setDroppedFiles,
-  typeOfValue,
-  setTypeOfValue,
-  isDownloadingAll
+  isDownloadingAll,
+  resetDefaultValues
 }) => {
   const [quality, setQuality] = useState(defaultQuality || '100')
-  const [type, setType] = useState(
-    defaultType || file.type.replace('image/', '')
-  )
+  const [type, setType] = useState(defaultType || file.type.replace('image/', ''))
   const [maxWidth, setMaxWidth] = useState('')
   const [isDownloading, setIsDownloading] = useState(false)
-  const [realDimensions, setRealDimensions] = useState({
-    width: '',
-    height: '',
-  })
+  const [realDimensions, setRealDimensions] = useState({width: '',height: ''})
+  const [loading,setLoading] = useState(true)
+  const {setDroppedFiles,setTypeOfDefaultValue,typeOfDefaultValue,droppedFiles} = useContext(Context)
+
+  const removeFile = (index: number) => {
+    const filteredFiles = droppedFiles.filter((file:DroppedFile) => {
+      return index !== file.index
+    })
+    setDroppedFiles(filteredFiles)
+    if (filteredFiles.length === 0) {
+        resetDefaultValues()
+    }
+  }
+
 
   useEffect(() => {
     setRealDimensions(file.realDimensions)
     setMaxWidth(file.realDimensions.width)
   }, [])
 
+  
+
+
   useEffect(() => {
     setIsDownloading(true)
-    if (defaultQuality && typeOfValue === 'QUALITY') {
+    if (defaultQuality && typeOfDefaultValue === 'QUALITY') {
       setQuality(defaultQuality)
       editDroppedFiles('quality', defaultQuality)
     }
-    if (defaultType && typeOfValue === 'TYPE') {
+    if (defaultType && typeOfDefaultValue === 'TYPE') {
       setType(defaultType)
       editDroppedFiles('type', defaultType)
     }
 
-    if (defaultMaxWidth && typeOfValue === 'WIDTH') {
+    if (defaultMaxWidth && typeOfDefaultValue === 'WIDTH') {
       setMaxWidth(defaultMaxWidth)
       editDroppedFiles('dimensions', defaultMaxWidth)
-    } else if (!defaultMaxWidth && typeOfValue === 'WIDTH') {
+    } else if (!defaultMaxWidth && typeOfDefaultValue === 'WIDTH') {
       setMaxWidth(realDimensions.width)
       editDroppedFiles('dimensions', realDimensions.width)
     }
@@ -99,13 +94,13 @@ const File: React.FC<FileProps> = ({
 
   const editDroppedFiles = (key: string, value: string) => {
     setDroppedFiles((prev: DroppedFile[]) => {
-      const newFiles = [...prev]
-      if (key !== 'dimensions') {
-        newFiles[index] = { ...newFiles[index], [key]: value }
-      } else {
-        newFiles[index].realDimensions.width = value
-      }
-      return newFiles
+        const newFiles = [...prev]
+        if (key !== 'dimensions') {
+          newFiles[index] = { ...newFiles[index], [key]: value }
+        } else {
+          newFiles[index].realDimensions.width = value
+        }
+        return newFiles
     })
     setIsDownloading(false)
   }
@@ -114,14 +109,14 @@ const File: React.FC<FileProps> = ({
   const onChangeQuality = (value: string) => {
     setQuality(value)
     editDroppedFiles('quality', value)
-    setTypeOfValue('')
+    setTypeOfDefaultValue('')
   }
 
 
   const onChangeType = (value: string) => {
     setType(value)
     editDroppedFiles('type', value)
-    setTypeOfValue('')
+    setTypeOfDefaultValue('')
   }
 
 
@@ -129,7 +124,7 @@ const File: React.FC<FileProps> = ({
     const width = value || realDimensions.width
     setMaxWidth(width)
     editDroppedFiles('dimensions', width)
-    setTypeOfValue('')
+    setTypeOfDefaultValue('')
   }
 
 
@@ -167,18 +162,24 @@ const File: React.FC<FileProps> = ({
   return (
     <div className={`file`} key={index}>
       <div className="file-img-container">
+       {loading &&  <div className='img-loading-state'></div>}
         <img
           src={URL.createObjectURL(file.file)}
-          width={50}
-          height={50}
+          width={100}
+          height={150}
           alt=""
+          loading="lazy"
+          onLoad={()=>setLoading(false)}
+          onError={()=>setLoading(false)}
         />
         <div>
-          <p>{file.name}</p>
+          <p className='file-name'>{file.name}</p>
           <p className="size">{(file.size / (1024 * 1024)).toFixed(2)}MB</p>
         </div>
       </div>
-      <div className="flex justify-center items-start gap-20">
+
+      <div className='flex flex-col'>
+      <div className="flex justify-center items-start file-values">
         <div className="flex flex-col gap-2">
           <label htmlFor="img-quality">Quality</label>
           {
@@ -224,35 +225,41 @@ const File: React.FC<FileProps> = ({
             style={{ color: 'black' }}
             type="number"
             className=" text-center p-1 border-2 border-black"
-            min={1}
+            min={0}
             maxLength={4}
             value={maxWidth}
             placeholder="Width"
             onChange={(e) => {
-              onChangeWidth(e.target.value.slice(0, 5))
+              onChangeWidth(e.target.value.slice(0, 5))              
             }}
           />
         </div>
 
-        <div className="file-btn">
-          <button
-            onClick={() => download()}
-            disabled={isDownloading || isDownloadingAll}
-            className={`btn btn-donwload border-2 px-4 py-2 rounded bg-green-500 text-white transition  disabled:bg-gray-400 disabled ${isDownloading || isDownloadingAll ? 'download-off' : ''}`}
-          >
-            Download
-          </button>
-        </div>
+       
 
-        <div className="file-btn">
-          <button
-            onClick={() => removeFile(file.index)}
-            className="btn border-white  border-2 px-4 py-2 rounded bg-red-500 text-white transition hover:bg-red-200 hover:text-red-500"
-          >
-            Remove
-          </button>
+      </div>
+      <div className='flex flex-row justify-center items-center mt-4 gap-20 file-btns-dr'>
+          <div className="file-btn ">
+            <button
+              onClick={() => download()}
+              disabled={isDownloading || isDownloadingAll}
+              className={`btn btn-donwload px-4 py-2 rounded bg-green-500 text-white transition  disabled:bg-gray-400 disabled ${isDownloading || isDownloadingAll ? 'download-off' : ''}`}
+            >
+              Download
+            </button>
+          </div>
+
+          <div className="file-btn ">
+            <button
+              onClick={() => removeFile(file.index)}
+              className=" remove-btn px-4 py-2 rounded  text-white transition "
+            >
+              Remove
+            </button>
+          </div>
         </div>
       </div>
+    
     </div>
   )
 }
