@@ -121,7 +121,7 @@ const File: React.FC<FileProps> = ({
 
 
   const onChangeWidth = (value: string) => {
-    const width = value || realDimensions.width
+    const width = value || ""
     setMaxWidth(width)
     editDroppedFiles('dimensions', width)
     setTypeOfDefaultValue('')
@@ -129,7 +129,11 @@ const File: React.FC<FileProps> = ({
 
 
   const download = async () => {
+   
     if (isDownloading || isDownloadingAll) return
+    if (!maxWidth || maxWidth === "0") {
+      return alert("Max Width is Required")
+    }
     setIsDownloading(true)
     return new Promise((resolve) => {
       FileResizer.imageFileResizer(
@@ -153,9 +157,8 @@ const File: React.FC<FileProps> = ({
         link.remove()
         setIsDownloading(false)
       })
-      .catch((error) => {
+      .catch(() => {
         setIsDownloading(false)
-        console.log(error)
       })
   }
 
@@ -228,7 +231,6 @@ const File: React.FC<FileProps> = ({
             min={0}
             maxLength={4}
             value={maxWidth}
-            placeholder="Width"
             onChange={(e) => {
               onChangeWidth(e.target.value.slice(0, 5))              
             }}

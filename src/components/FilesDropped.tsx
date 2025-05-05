@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useState } from 'react'
 import File from './File'
 import { imageQualities, imageTypes } from './utils'
 import Resizer from 'react-image-file-resizer'
@@ -37,6 +37,7 @@ const FilesDropped: React.FC = () => {
     if (droppedFiles.length > 0) {
       const filesToDownload = droppedFiles.map(
         async (file: DroppedFile) =>
+         
           await resizeFile(
             file.file,
             file.quality,
@@ -46,7 +47,7 @@ const FilesDropped: React.FC = () => {
       )
       Promise.all(filesToDownload).then(async (res) => {
         setIsDownloadingAll(false)
-        await zipFiles(res as File[])
+        await zipFiles(res as File[] )
       })
     }
   }
@@ -75,7 +76,7 @@ const FilesDropped: React.FC = () => {
         file,
         +realDimensions.width,
         +realDimensions.height,
-        type,
+        type.toLowerCase(),
         +quality,
         0,
         (uri) => {
