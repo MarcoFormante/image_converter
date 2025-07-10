@@ -8,9 +8,7 @@ URL: https://imageconverter.marcoformante.com/
 ## 🚀 Tech Stack
 
 - **React** – Frontend library for building the user interface
-- **JavaScript / HTML5** – File handling and image manipulation
-- **FileReader API** – To read and preview local files
-- **Canvas API** – To convert and export images in various formats
+- **File Resizer** from react-image-file-resizer
 
 ## 🔄 Features
 
